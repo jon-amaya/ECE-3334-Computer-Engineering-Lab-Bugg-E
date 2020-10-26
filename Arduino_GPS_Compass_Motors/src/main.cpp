@@ -3,6 +3,21 @@
 #include <Adafruit_MotorShield.h>
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
+#include <NewPing.h>
+
+
+//Ultrasonic Sensor
+
+
+#define SONAR_NUM 3      // Number of sensors.
+#define MAX_DISTANCE 12 // Maximum distance (in inches) to ping.
+
+NewPing sonar[SONAR_NUM] = {   // Sensor object array.
+  NewPing(1, 2, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping. 
+  NewPing(3, 4, MAX_DISTANCE), 
+  NewPing(5, 6, MAX_DISTANCE)
+};
+
 static const int RXPin = 7, TXPin = 8;
 static const uint32_t GPSBaud = 9600;
 
@@ -19,13 +34,8 @@ int *compassHeadingX = 0;
 int *compassHeadingY = 0 ;
 const int compassOffset = 10;
 
-
-// Create the motor shield object with the default I2C address
-Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-// Or, create it with a different I2C address (say for stacking)
-// Adafruit_MotorShield AFMS = Adafruit_MotorShield(0x61);
-
-// Select which 'port' M1, M2, M3 or M4. In this case, M1
+//DC Motors and Servos
+Adafruit_MotorShield AFMS = Adafruit_MotorShield(0x61);
 Adafruit_DCMotor *motorFrontLeft = AFMS.getMotor(1);
 Adafruit_DCMotor *motorRearLeft = AFMS.getMotor(2);
 Adafruit_DCMotor *motorRearRight = AFMS.getMotor(3);
@@ -33,6 +43,21 @@ Adafruit_DCMotor *motorFrontRight = AFMS.getMotor(4);
 
 // You can also make another motor on port M2
 //Adafruit_DCMotor *myOtherMotor = AFMS.getMotor(2);
+
+
+int getPing(){
+  int average = 0;
+  for (uint8_t i = 0; i < SONAR_NUM; i++) { // Loop through each sensor and display results.
+    delay(50); // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
+    Serial.print(i);
+    Serial.print("=");
+    Serial.print(sonar[i].ping_cm());
+    Serial.print("cm ");
+    average+= sonar[i].ping_in();
+  }
+  return average/SONAR_NUM;
+
+}
 
 void motorStop()
 {
