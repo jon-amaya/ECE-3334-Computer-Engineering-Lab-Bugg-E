@@ -4,46 +4,62 @@
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
 #include <NewPing.h>
+#include <Adafruit_LSM303DLH_Mag.h>
+#include <Adafruit_Sensor.h>
+#define SONAR_NUM 3      
+#define MAX_DISTANCE 12 
 
 
-//Ultrasonic Sensor
+boolean *sonarPing = false;
+unsigned long currentPingMillis=0;
+unsigned long previousPingMillis =0;
+const long pingIntervaL = 200;
 
 
-#define SONAR_NUM 3      // Number of sensors.
-#define MAX_DISTANCE 12 // Maximum distance (in inches) to ping.
 
-NewPing sonar[SONAR_NUM] = {   // Sensor object array.
-  NewPing(1, 2, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping. 
-  NewPing(3, 4, MAX_DISTANCE), 
-  NewPing(5, 6, MAX_DISTANCE)
-};
-
+//GPS PINS                                                                      
 static const int RXPin = 7, TXPin = 8;
 static const uint32_t GPSBaud = 9600;
-
-// The TinyGPS++ object
-TinyGPSPlus gps;
 SoftwareSerial ss(RXPin, TXPin);
-unsigned long lastUpdateTime = 0;
+TinyGPSPlus gps;
+
+unsigned long distanceToDestination;
+long double destinationLatitude;
+long double destinationLongitude;
 unsigned int satelliteCount = 0;
+unsigned long lastUpdateTime = 0;
 
+int increment = 0; //???
 
-//compass guiddnce
-
-int *compassHeadingX = 0;
-int *compassHeadingY = 0 ;
+//compass axis
+Adafruit_LSM303DLH_Mag_Unified mag = Adafruit_LSM303DLH_Mag_Unified(12345);
+int *compassX = 0;
+int *compassY = 0 ;
+int *compassZ = 0;
 const int compassOffset = 10;
 
+int *compassHeadingOne;
+int *compassHeadingTwo;
+int *roverCycle;
+
+
 //DC Motors and Servos
+
+const int motorSpeed =255;
+const int turnSpeed = 175;
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(0x61);
 Adafruit_DCMotor *motorFrontLeft = AFMS.getMotor(1);
 Adafruit_DCMotor *motorRearLeft = AFMS.getMotor(2);
 Adafruit_DCMotor *motorRearRight = AFMS.getMotor(3);
 Adafruit_DCMotor *motorFrontRight = AFMS.getMotor(4);
 
-// You can also make another motor on port M2
-//Adafruit_DCMotor *myOtherMotor = AFMS.getMotor(2);
 
+
+NewPing sonar[SONAR_NUM] = {   // Sensor object array.
+  NewPing(1, 2, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping. 
+  NewPing(3, 4, MAX_DISTANCE), 
+  NewPing(5, 6, MAX_DISTANCE)
+};
 
 int getPing(){
   int average = 0;
@@ -207,7 +223,7 @@ void loop()
       if (distanceToDestination <= 1)
       {
         Serial.println("Destination Reached");
-        exit(1);
+        exit(1);                                                                                                                                                                                  
       }
 
       Serial.print("DISTANCE: ");
