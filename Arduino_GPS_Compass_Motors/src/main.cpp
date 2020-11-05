@@ -10,7 +10,7 @@
 #define MAX_DISTANCE 12 
 
 
-boolean *sonarPing = false;
+boolean sonarPing = false;
 unsigned long currentPingMillis=0;
 unsigned long previousPingMillis =0;
 const long pingIntervaL = 200;
@@ -160,6 +160,29 @@ void moveRightLow()
   motorRearRight->run(BACKWARD);
 }
 
+
+void updateGPS(){
+
+  while (ss.available()>0){
+    gps.encode(ss.read());
+  }
+}
+
+
+void updateCompass(){
+  sensors_event_t event;
+  mag.getEvent(&event);
+  float Pi = 3.14159;
+  // Calculate the angle of the vector y,x
+  float heading = ((atan2(event.magnetic.y, event.magnetic.x) * 180) / Pi)+5.88;
+  // Normalize to 0-360
+  if (heading < 0) {
+    heading = 360 + heading;
+  }
+  Serial.print("Compass Heading: ");
+  Serial.println(heading);
+}
+
 void roverSetup()
 {
     Serial.println("Searching for Satellites "); 
@@ -174,25 +197,8 @@ void roverSetup()
 
 }
 
-void updateGPS(){
 
-  while (ss.available()>0){
-    gps.encode(ss.read());
-  }
-}
-void updateCompass(){
-  sensors_event_t event;
-  mag.getEvent(&event);
-  float Pi = 3.14159;
-  // Calculate the angle of the vector y,x
-  float heading = ((atan2(event.magnetic.y, event.magnetic.x) * 180) / Pi)+5.88;
-  // Normalize to 0-360
-  if (heading < 0) {
-    heading = 360 + heading;
-  }
-  Serial.print("Compass Heading: ");
-  Serial.println(heading);
-}
+
 
 void setup()
 {
