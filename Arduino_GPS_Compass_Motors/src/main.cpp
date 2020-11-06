@@ -45,8 +45,8 @@ int *roverCycle;
 
 //DC Motors and Servos
 
-const int motorSpeed =255;
-const int turnSpeed = 175;
+const int motorSpeed =200;
+const int turnSpeed = 255;
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(0x61);
 Adafruit_DCMotor *motorFrontLeft = AFMS.getMotor(1);
 Adafruit_DCMotor *motorRearLeft = AFMS.getMotor(2);

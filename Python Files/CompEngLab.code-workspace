@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "..\\Arduino_GPS_Compass_Motors"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.pythonPath": "C:\\Users\\jon_a\\AppData\\Local\\Programs\\Python\\Python39\\python.exe"
+	}
+}
